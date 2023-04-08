@@ -22,7 +22,7 @@ const i18n = new I18n({
 
 
 app.use(body.json())
-app.use(i18n.init)
+app.use(i18n.init) 
 db.sequelize.sync({force : false })
 
 

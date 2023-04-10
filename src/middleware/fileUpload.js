@@ -2,6 +2,9 @@ const multer = require("multer")
 const path = require("path")
 
 
+//Task no.46 (Check how to upload multiple files using multer, then implementation.)
+//Task no.47 (Add restriction in multer upload setup for jpeg and png file only.)
+
 const uploadsPath = path.join(__dirname,"../uploads")
 const uploads  = multer({
  storage:multer.diskStorage({

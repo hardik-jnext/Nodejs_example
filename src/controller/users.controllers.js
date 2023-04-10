@@ -15,6 +15,9 @@ const moment = require("moment");
 //  Register
 
 // 1. Register User - Insert/Create
+// Task no.39 (Create common function with otp generation, add field for OTP in user table, also add field for expireOtpTime)
+//Task no.40 (Implement sendEmail for register API.)
+//Task no.43(Set OTP expiration time of currentTime + 5 minute, also add check for expiration time.)
 
 const createUser = async (req, res) => {
   try {
@@ -62,7 +65,7 @@ const getUser = async (req, res) => {
       res.json({ data });
     } else {
       res.json({
-        message: res.__("User not found..."),
+        message: res.__("USER_NOT_FOUND"),
       });
     }
   } catch (error) {
@@ -71,6 +74,8 @@ const getUser = async (req, res) => {
 };
 
 // 4. generate token
+//Task no.38 (Add restriction in login API that only active users can login, and create item/order.)
+//Task no.40 (Add check in login if user is verified then and then it can login)
 
 const loginUser = async (req, res) => {
   try {
@@ -288,7 +293,7 @@ const onlyadmin = async (req, res) => {
   }
 };
 
-// Create one Delete Item api which can be accessed by Admin
+//Task no.31 (Create one Delete Item api which can be accessed by Admin)
 
 const deleteItem = async (req, res) => {
   try {
@@ -303,6 +308,7 @@ const deleteItem = async (req, res) => {
     res.send(error);
   }
 };
+
 
 const sendmail = async (req, res) => {
   try {
@@ -346,7 +352,7 @@ const sendmail = async (req, res) => {
   }
 };
 
-// Add new API with name: /verifyOtp, in this pass otp in params and check with user table otp
+//Task no.41 Add new API with name: /verifyOtp, in this pass otp in params and check with user table otp
 
 const verifyOtp = async (req, res) => {
   try {
@@ -412,6 +418,8 @@ const changepassword = async (req, res) => {
     console.log(error);
   }
 };
+
+//Task no.48 (Check flow with references that how forgot and reset password works.)
 
 const forgetPasswordmail = async (req, res) => {
   try {

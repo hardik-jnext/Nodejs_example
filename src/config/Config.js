@@ -15,6 +15,7 @@ db.order = require("../model/order.model")(sequelize, Sequelize);
 db.manufacture = require("../model/Manufacture.model")(sequelize, Sequelize);
 
 
+// Task no. 12 (Join User to Order, and Items to Order)
 
 //----------one to one -----------//
 db.user.hasOne(db.order, { foreignKey: `user_id` });
@@ -24,9 +25,12 @@ db.order.belongsTo(db.user, { foreignKey: `user_id` });
 db.item.hasOne(db.order, { foreignKey: `item_id` });
 db.order.belongsTo(db.item, { foreignKey: `item_id` });
 
+
+// Task no. 13 (Join Manufacture to Item)
 //----------one to one -----------//
 db.manufacture.hasOne(db.item, { foreignKey: `manufature_id` });
 db.item.belongsTo(db.manufacture, { foreignKey: `manufature_id` });
+
 
 //----------one to one -----------//
 db.user.hasOne(db.manufacture, { foreignKey: `user_id` });

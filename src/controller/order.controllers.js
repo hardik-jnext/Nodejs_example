@@ -1,7 +1,11 @@
 const { order,item } = require("../config/Config");
 const generateOrderNumber = require("../helpers/orderNumber.helper.js");
 
-// only my orders
+
+// Task no.15 (Create getAll my orders API for current logged in user) 
+// Note : Task no. 16 (Add status in order. Decide data type ) in model
+//Task no.18 (Add filter by status in viewMyOrders api )
+
 
 const getOrder = async (req, res) => {
   try {
@@ -25,7 +29,7 @@ const getOrder = async (req, res) => {
   }
 };
 
-// all orders
+//Task no.17 (Add separate getAll API to show all orders) 
 
 const getallOrder = async (req, res) => {
   try {
@@ -41,7 +45,10 @@ const getallOrder = async (req, res) => {
   }
 };
 
-// create order
+
+//Task no.14 (Add create order API )
+//Task no.23 (Check if Item expiry date is today or before today then it can't be ordered by user)
+//Task np.24 Set if customer is creating order then you have to accept status "Ordered" only
 
 const createOrder = async (req, res) => {
   try {
@@ -77,6 +84,10 @@ const createOrder = async (req, res) => {
   }
 };
 
+
+//Task no 25.(Create new API for update orderStatus. )
+//Task no 26.(Create new API for update item, can be access by Manufacturer or Admin only)
+
 const updateOrderstatus = async (req, res) => {
   try {
     if (req.user.role == "Admin" || req.user.role == "Manufacturer") {
@@ -100,6 +111,9 @@ const updateOrderstatus = async (req, res) => {
     res.send(error);
   }
 };
+
+
+//Task no.27 (Create invoice generation API for customer for ordered amount and items)
 
 const invoiceGenration = async (req, res) => {
   try {

@@ -3,7 +3,7 @@ const router = express.Router();
 const {getUser,allUser,createUser,loginUser,updateUser,deleteUser,roleUser,orderrole,onlyadmin,deleteItem,sendmail,verifyOtp,changepassword,forgetPassword,forgetPasswordmail} = require("../controller/users.controllers.js");
 const authUser = require("../middleware/user.auth.js");
 const {celebrate} = require("celebrate")
-const {usercreatevalid,findUser,updateUservalidation,deleteUservalidation,onlyadminValidation,changepasswordvalid,forgetPasswordvalid} = require("../validator/users.validator.js")
+const {usercreatevalid,findUser,updateUservalidation,onlyadminValidation,changepasswordvalid,forgetPasswordvalid} = require("../validator/users.validator.js")
 
 
 router.route("/all").get(allUser)
@@ -23,7 +23,7 @@ router.put("/update",celebrate(updateUservalidation),authUser,updateUser)
     // without auth
 //router.delete("/delete/:id",deleteUser)
      // without auth
-router.delete("/delete",celebrate(deleteUservalidation),authUser,deleteUser)
+router.delete("/delete",authUser,deleteUser)
 
 
 router.get("/userRole",authUser,roleUser)
@@ -48,8 +48,7 @@ router.get("/gmail",sendmail)
 router.put("/changepassword",celebrate(changepasswordvalid),authUser,changepassword)
 
 
-  // forgot password
-
+// forgot password
 router.get("/forgotpasswordmail/",forgetPasswordmail) 
 router.put("/forgotpassword/:otp",celebrate(forgetPasswordvalid),forgetPassword) 
   

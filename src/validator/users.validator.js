@@ -8,8 +8,7 @@ const usercreatevalid = {
         age : Joi.number().integer().required(),
         address :Joi.string().required(),
         role : Joi.string().required(),      
-    
-    })
+        })
 }
 
 const findUser ={
@@ -25,13 +24,6 @@ const updateUservalidation = {
         age:Joi.number().integer(), 
         address: Joi.string()
     })
-}
-
-
-const deleteUservalidation = {
-    [Segments.PARAMS]:Joi.object().keys({
-        id:Joi.number().integer().required() 
-     })
 }
 
 
@@ -61,4 +53,4 @@ const forgetPasswordvalid = {
     }
 }
 
-module.exports = {usercreatevalid,findUser,updateUservalidation,deleteUservalidation,onlyadminValidation,changepasswordvalid,forgetPasswordvalid}
+module.exports = {usercreatevalid,findUser,updateUservalidation,onlyadminValidation,changepasswordvalid,forgetPasswordvalid}

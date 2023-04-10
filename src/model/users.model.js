@@ -25,11 +25,12 @@ module.exports = (sequelize,Sequelize)=>{
         type : DataTypes.ENUM("Customer","Admin","Manufacturer")
        },
        status :{
-         type : DataTypes.ENUM("Active","InActive")
+         type : DataTypes.ENUM("Active","InActive"),
+         defaultValue : "InActive"
        },
        isVerify :{
          type : DataTypes.BOOLEAN,
-         default : "false"
+         defaultValue : "false"
        },otp :{
         type : DataTypes.INTEGER
        },

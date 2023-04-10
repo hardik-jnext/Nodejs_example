@@ -14,6 +14,8 @@ db.item = require("../model/item.model")(sequelize, Sequelize);
 db.order = require("../model/order.model")(sequelize, Sequelize);
 db.manufacture = require("../model/Manufacture.model")(sequelize, Sequelize);
 
+
+
 //----------one to one -----------//
 db.user.hasOne(db.order, { foreignKey: `user_id` });
 db.order.belongsTo(db.user, { foreignKey: `user_id` });

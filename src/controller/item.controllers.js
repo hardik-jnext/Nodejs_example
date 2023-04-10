@@ -54,7 +54,8 @@ const updateItem = async (req, res) => {
 
 const checkdelete = async(req,res)=>{
 
-    let data  = await order.findOne({ where :{item_id :req.params.id}})
+  try { 
+  let data  = await order.findOne({ where :{item_id :req.params.id}})
     console.log(data.status) 
     if(data.status == "Ordered")
     {
@@ -63,13 +64,21 @@ const checkdelete = async(req,res)=>{
        let deletRecord  = await item.destroy({ where :{id :data.item_id}})
         return  res.json(deletRecord)  
     }
+  } catch (error) {
+     console.log(error)
+  }  
+
 } 
 
 
 //Insert image 
  
  let imageInsert = async(req,res)=>{
-      return res.send(req.file)
+     try {
+       return res.send(req.file)     
+     } catch (error) {
+      console.log(error)
+     }
  }
 
 module.exports = { getItem, createItem,updateItem,checkdelete,imageInsert};

@@ -56,14 +56,17 @@ const createUser = async (req, res) => {
 //3. Get user by Id - Read
 
 const getUser = async (req, res) => {
-  let data = await user.findOne({ where: { id: req.params.id } });
-
-  if (data) {
-    res.json({ data });
-  } else {
-    res.json({
-      message: res.__("User not found..."),
-    });
+  try {
+    let data = await user.findOne({ where: { id: req.params.id } });
+    if (data) {
+      res.json({ data });
+    } else {
+      res.json({
+        message: res.__("User not found..."),
+      });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -88,35 +91,44 @@ const loginUser = async (req, res) => {
     let token = jwt.sign(findUser, secretkey);
     return res.send({ token });
   } catch (error) {
-    return res.send(error);
+    console.log(error);
   }
 };
 
 //4.1 Get users list (with authentication)
 
 const allUser = async (req, res) => {
-  let data = await user.findAll();
-  res.json({ data });
+  try {
+    let data = await user.findAll();
+    res.json({ data });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 //5. Update my profile (without using token) - Update/Edit
 
 // const updateUser = async (req, res) => {
-//   let [updated] = await user.update(
-//     {
-//       userName: req.body.userName,
-//       email: req.body.email,
-//       age: req.body.age,
-//       address: req.body.address,
-//     },
-//     { where: { id: req.params.id } }
-//   );
-//   if ([!updated[0]]) {
-//     res.json({ message: res.__("NOT_UPDATED...") });
-//   }
-//   let data = await user.findOne({ where: { id: req.params.id } });
-//   res.json({data});
-// };
+//       try {
+//           let [updated] = await user.update(
+//             {
+//               userName: req.body.userName,
+//               email: req.body.email,
+//               age: req.body.age,
+//               address: req.body.address,
+//             },
+//             { where: { id: req.params.id } }
+//           );
+//           if ([!updated[0]]) {
+//             res.json({ message: res.__("NOT_UPDATED...") });
+//           }
+//           let data = await user.findOne({ where: { id: req.params.id } });
+//           res.json({data});
+//       }
+//       catch (error) {
+//          console.log(error)
+//         }
+//       }
 
 //5.1 Update my profile (using token)
 
@@ -158,19 +170,28 @@ const updateUser = async (req, res) => {
 //6.Delete my profile (without using token) - Delete
 
 // const deleteUser =async(req,res)=>{
+
+// try {
 //   let data = await user.destroy({where :{id:req.params.id}})
 // res.json({data})
 
+// } catch (error) {
+//   console.log(error);
+// }
 // }
 
 //6.1  Delete my profile ( using token) - Delete
 
 const deleteUser = async (req, res) => {
-  let data = await user.destroy({ where: { id: req.user.id } });
-  if (data && data[0]) {
-    res.json({ message: res.__("ACCOUNT_CAN'T_DELETED") });
-  } else {
-    res.json({ message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
+  try {
+    let data = await user.destroy({ where: { id: req.user.id } });
+    if (data && data[0]) {
+      res.json({ message: res.__("ACCOUNT_CAN'T_DELETED") });
+    } else {
+      res.json({ message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -363,71 +384,83 @@ const verifyOtp = async (req, res) => {
 // Task no. 45 (Add change password api, user can change own password.)
 
 const changepassword = async (req, res) => {
-  if (req.body.newpassword === req.body.confirmpassword) {
-    let oldPassoword = await user.findOne({
-      where: {
-        password: req.user.password,
-      },
-    });
+  try {
+    if (req.body.newpassword === req.body.confirmpassword) {
+      let oldPassoword = await user.findOne({
+        where: {
+          password: req.user.password,
+        },
+      });
 
-    if (oldPassoword.password == req.body.oldpassword) {
-      let data = await user.update(
-        { password: req.body.newpassword },
-        {
-          where: {
-            id: req.user.id,
-          },
-        }
-      );
-      return res.json({ data });
-    } else {
-      return res.json({ message: res.__("OLD_PASSWORD DOES'T MATCH") });
-    }
-  } else {
-    return res.json({ message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH") });
-  }
-};
-
-const forgetPasswordmail = async (req, res) => {
-  let expireDate = moment().add(5, "minutes");
-  const data = await user.update(
-    { otp: otp, expireOtpTime: expireDate },
-    { where: { email: req.body.email } }
-  );
-  const find = await user.findOne({ where: { email: req.body.email } });
-
-  let obj = { userName: find.userName, otp: otp };
-
-  await sendMail("dishang.jnext@gmail.com", find.email, obj);
-  return res.json({ data });
-};
-
-const forgetPassword = async (req, res) => {
-  let find = await user.findOne({ where: { email: req.body.email } });
-  let currentdate = moment().utc();
-
-  if (find.expireOtpTime > currentdate) {
-    if (find.otp == req.params.otp) {
-      if (req.body.newpassword === req.body.confimpassword) {
+      if (oldPassoword.password == req.body.oldpassword) {
         let data = await user.update(
           { password: req.body.newpassword },
           {
             where: {
-              email: req.body.email,
+              id: req.user.id,
             },
           }
         );
         return res.json({ data });
       } else {
-        return res.json({
-          message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),
-        });
+        return res.json({ message: res.__("OLD_PASSWORD DOES'T MATCH") });
       }
     } else {
-      return res.json({ message: res.__("YOUR_OTP_IS_WRONG") });
+      return res.json({ message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH") });
     }
-  } else {
-    return res.json({ message: res.__("YOUR_OTP_IS_EXPIRED!!!") });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const forgetPasswordmail = async (req, res) => {
+  try {
+    let expireDate = moment().add(5, "minutes");
+    const data = await user.update(
+      { otp: otp, expireOtpTime: expireDate },
+      { where: { email: req.body.email } }
+    );
+    const find = await user.findOne({ where: { email: req.body.email } });
+
+    let obj = { userName: find.userName, otp: otp };
+
+    await sendMail("dishang.jnext@gmail.com", find.email, obj);
+    return res.json({ data });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const forgetPassword = async (req, res) => {
+  try {
+    let find = await user.findOne({ where: { email: req.body.email } });
+    let currentdate = moment().utc();
+
+    if (find.expireOtpTime > currentdate) {
+      if (find.otp == req.params.otp) {
+        if (req.body.newpassword === req.body.confimpassword) {
+          let data = await user.update(
+            { password: req.body.newpassword },
+            {
+              where: {
+                email: req.body.email,
+              },
+            }
+          );
+          return res.json({ data });
+        } else {
+          return res.json({
+            message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),
+          });
+        }
+      } else {
+        return res.json({ message: res.__("YOUR_OTP_IS_WRONG") });
+      }
+    } else {
+      return res.json({ message: res.__("YOUR_OTP_IS_EXPIRED!!!") });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 

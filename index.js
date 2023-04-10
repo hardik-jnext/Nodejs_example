@@ -7,11 +7,13 @@ const itemrouter = require("./src/routes/items.routes.js")
 const ordertrouter = require("./src/routes/order.routes.js")
 const manufacturerouter = require("./src/routes/manufacture.routes.js")
 const path = require("path")
-
-
 const db = require("./src/config/Config.js")
 const body = require("body-parser")
 const  hadleErrorMessage  = require('./src/middleware/errorHandle.js')
+
+// Task no.:50 (Implement i18n for multi-language in response.)
+    
+// start
 
 const i18n = new I18n({
     locales :['en','de','fr'],
@@ -20,9 +22,12 @@ const i18n = new I18n({
     heade: 'accept-language'   
 })
 
+app.use(i18n.init) 
+
+//end
+
 
 app.use(body.json())
-app.use(i18n.init) 
 db.sequelize.sync({force : false })
 
 

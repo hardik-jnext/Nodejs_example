@@ -12,9 +12,7 @@ const otp = require("../helpers/otpGenretor.helper.js");
 const sendMail = require("../helpers/sendMail.helper.js");
 const moment = require("moment");
 
-//  Register
-
-// 1. Register User - Insert/Create
+// 4.1 (Register User - Insert/Create)
 // Task no.39 (Create common function with otp generation, add field for OTP in user table, also add field for expireOtpTime)
 //Task no.40 (Implement sendEmail for register API.)
 //Task no.43(Set OTP expiration time of currentTime + 5 minute, also add check for expiration time.)
@@ -24,9 +22,7 @@ const createUser = async (req, res) => {
     let body = req.body;
     let records = await user.findOne({ where: { email: body.email } });
     if (records && records.id) {
-      return res.json({
-        message: res.__("Already Registered..."),
-      });
+      return res.status(200).send({status : true,message: res.__("Already Registered..."),   });
     } else {
       let expireDate = moment().add(5, "minutes");
 
@@ -41,39 +37,45 @@ const createUser = async (req, res) => {
         expireOtpTime: expireDate,
       });
       let obj = { userName: data.userName, otp: data.otp };
-      await sendMail("dishang.jnext@gmail.com", "hardik.jnext@gmail.com", obj);
-      return res.json({ data });
+      await sendMail("dishang.jnext@gmail.com", data.email, obj);
+      return res.status(200).send({ status : true , records : data});
     }
   } catch (e) {
-    return res.send("error");
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
-//2.Get All registered User - Read
+//4.2(Get All registered User - Read)
 
-// const allUser = async (req, res) => {
-//   let data = await user.findAll();
-//   res.json({data});
-// };
+const getAllRegister = async (req, res) => {
+  try {
+    let data = await user.findAll();
+    return res.status(200).send({ status : true , records : data});
+      } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
+  }
+};
 
-//3. Get user by Id - Read
+//4.3 (Get user by Id - Read)
 
 const getUser = async (req, res) => {
   try {
     let data = await user.findOne({ where: { id: req.params.id } });
+    
     if (data) {
-      res.json({ data });
+      return res.status(200).send({ status : true , records : data});
     } else {
-      res.json({
-        message: res.__("USER_NOT_FOUND"),
-      });
+       return res.status(200).send({status : true,message: res.__("USER_NOT_FOUND") });
     }
   } catch (error) {
     console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
-// 4. generate token
+// 4.4 Get users list (with authentication) - Read
 //Task no.38 (Add restriction in login API that only active users can login, and create item/order.)
 //Task no.40 (Add check in login if user is verified then and then it can login)
 
@@ -85,57 +87,61 @@ const loginUser = async (req, res) => {
       raw: true,
     });
     if (!findUser) {
-      return res.json({ message: res.__("USER_NOT_REGISTERD!!") });
+      return res.status(200).send({status : true, message: res.__("USER_NOT_REGISTERD!!") });
     }
     if (findUser.status == "InActive") {
-      return res.json({
-        message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
-      });
+      return res.status(200).send({status : true,message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!") });
     }
 
     let token = jwt.sign(findUser, secretkey);
     return res.send({ token });
   } catch (error) {
     console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
-//4.1 Get users list (with authentication)
+//4.4 Get users list (with authentication)
 
 const allUser = async (req, res) => {
   try {
     let data = await user.findAll();
-    res.json({ data });
+         if(!data){
+          return res.status(200).send({status : true,message : res.__("RECORDS_NOT_FOUND...")})
+         }else{
+          return res.status(200).send({status : true,users : data})
+         }
   } catch (error) {
     console.log(error);
+    return res.json({ err: error });
   }
 };
 
-//5. Update my profile (without using token) - Update/Edit
+//4.5 (Update my profile (without using token) - Update/Edit0
 
-// const updateUser = async (req, res) => {
-//       try {
-//           let [updated] = await user.update(
-//             {
-//               userName: req.body.userName,
-//               email: req.body.email,
-//               age: req.body.age,
-//               address: req.body.address,
-//             },
-//             { where: { id: req.params.id } }
-//           );
-//           if ([!updated[0]]) {
-//             res.json({ message: res.__("NOT_UPDATED...") });
-//           }
-//           let data = await user.findOne({ where: { id: req.params.id } });
-//           res.json({data});
-//       }
-//       catch (error) {
-//          console.log(error)
-//         }
-//       }
+const updateUserWithoutAuth = async (req, res) => {
+  try {
+    let [updated] = await user.update(
+      {
+        userName: req.body.userName,
+        email: req.body.email,
+        age: req.body.age,
+        address: req.body.address,
+      },
+      { where: { id: req.params.id } }
+    );
+    if ([!updated[0]]) {
+     return res.status(200).send({ status : true,message: res.__("NOT_UPDATED...") });
+    }
+    let data = await user.findOne({ where: { id: req.params.id } });
+   return res.json({ data });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
+  }
+};
 
-//5.1 Update my profile (using token)
+//4.6 (Update my profile (using token))
 
 const updateUser = async (req, res) => {
   try {
@@ -145,9 +151,8 @@ const updateUser = async (req, res) => {
         message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
       });
     }
-
     if (!records) {
-      res.json({ message: res.__("RECORDS_NOT_FOUND...") });
+     return res.json({ message: res.__("RECORDS_NOT_FOUND...") });
     } else {
       let update = await user.update(
         {
@@ -162,41 +167,46 @@ const updateUser = async (req, res) => {
       );
       if (update && update[0]) {
         let record = await user.findOne({ where: { id: records.id } });
-        res.json({ message: res.__("UPDATED..."), data: record });
+      return  res.status(200).send({status : true, message: res.__("UPDATED..."), data: record });
       } else {
-        res.json({ message: res.__("NOT_UPDATED") });
+       return  res.json({ message: res.__("NOT_UPDATED") });
       }
-    }
-  } catch (e) {
-    res.send(e);
-  }
-};
-
-//6.Delete my profile (without using token) - Delete
-
-// const deleteUser =async(req,res)=>{
-
-// try {
-//   let data = await user.destroy({where :{id:req.params.id}})
-// res.json({data})
-
-// } catch (error) {
-//   console.log(error);
-// }
-// }
-
-//6.1  Delete my profile ( using token) - Delete
-
-const deleteUser = async (req, res) => {
-  try {
-    let data = await user.destroy({ where: { id: req.user.id } });
-    if (data && data[0]) {
-      res.json({ message: res.__("ACCOUNT_CAN'T_DELETED") });
-    } else {
-      res.json({ message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
     }
   } catch (error) {
     console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
+  }
+};
+
+//4.7  (Delete my profile ( using token) - Delete)
+
+const deleteUserWithAuth = async (req, res) => {
+  try {
+    let data = await user.destroy({ where: { id: req.user.id } });
+    if (data && data[0]) {
+    return  res.json({ message: res.__("ACCOUNT_CAN'T_DELETED") });
+    } else {
+      return res.status(200).send({ status : true, message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
+  }
+};
+
+//4.8  (Delete my profile (without using token) - Delete)
+
+const deleteUserWithoutAuth = async (req, res) => {
+  try {
+    let data = await user.destroy({ where: { id: req.params.id } });
+     if(!data){
+      return res.status(200).send({status : 200,error : res.__("ACCOUNT_ALREADY_DELETED!!!")})
+     }else{
+     return res.status(200).send({ status : true, message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
+     }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -206,12 +216,13 @@ const roleUser = async (req, res) => {
   try {
     if (req.user.role == "Admin") {
       const data = await user.findAll();
-      res.send(data);
+     return res.status(200).send({status : true,records : data})
     } else {
-      res.json({ message: res.__("YOU_CAN'T_ACCSES") });
+     return res.status.send({ status : true,error: res.__("YOU_CAN'T_ACCSES") });
     }
-  } catch (e) {
-    res.json({ message: e });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -221,24 +232,27 @@ const orderrole = async (req, res) => {
   try {
     if (req.user.role == "Admin") {
       const data = await order.findAll();
-      res.send(data);
+      return res.status(200).send({status : true,records : data})
     } else if (req.user.role == "Customer") {
       const data = await order.findOne({ where: { user_id: req.user.id } });
-      res.send(data);
+      return res.status(200).send({status : true,records : data})
     } else if (req.user.role == "Manufacturer") {
       const data = await order.findAll({
         include: [{ model: item, attributes: ["itemName", "manufature_id"] }],
         where: { user_id: req.user.id },
       });
       if (data && data[0]) {
-        res.send(data);
+      return  res.status(200).send({status : true,message :data});
       } else {
-        res.json({ message: res.__("ORDER_NOT_FOUND") });
+       return  res.status(200).send({ status : true,error: res.__("ORDER_NOT_FOUND") });
       }
     } else {
-      res.json({ message: res.__("ROLE_NOT_FOUND") });
+      return  res.status(200).send({ status : true,error: res.__("ROLE_NOT_FOUND") });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
+  }
 };
 
 //Task no. 30 && 32 && 34
@@ -283,13 +297,14 @@ const onlyadmin = async (req, res) => {
             role: "Customer",
           },
         });
-        res.json({ ordered: data.length, customer: user_id });
+             return res.status(200).send({ status : true,ordered: data.length, customer: user_id });
       } else {
-        res.send("error");
+        return res.status(200).send({ status : true,error: res.__("Records_NOT_FOUND...") });
       }
     }
-  } catch (e) {
-    res.send(e);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -305,10 +320,10 @@ const deleteItem = async (req, res) => {
       res.json({ mesaage: res.__("YOU_CAN'T_ACCSES") });
     }
   } catch (error) {
-    res.send(error);
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
-
 
 const sendmail = async (req, res) => {
   try {
@@ -325,14 +340,12 @@ const sendmail = async (req, res) => {
       name: "hardik",
       company: "jnext",
     };
-
     const readfile = fs.readFileSync(
       path.join(__dirname, "../email/gmail.html"),
       "utf-8"
     );
     const handlebarsTemplate = Handlebars.compile(readfile);
     const parsedHtml = handlebarsTemplate(data);
-
     let message = {
       from: "dishang.jnext@gmail.com",
       to: "hardik.jnext@gmail.com",
@@ -345,10 +358,10 @@ const sendmail = async (req, res) => {
       }
       console.log("Message sent:", info);
     });
-    return res.send("Done...");
+    return  res.status(200).send({status : true,message : "Done..."});
   } catch (error) {
     console.log(error);
-    return res.json({ message: error });
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -361,10 +374,10 @@ const verifyOtp = async (req, res) => {
     });
     let currentdate = moment().utc();
     if (verifyEmail.expireOtpTime < currentdate) {
-      return res.json({ mesaage: res.__("OTP_EXPIRED!!!") });
+      return res.status(200).send({ status : true ,error: res.__("OTP_EXPIRED!!!") });
     } else {
       if (verifyEmail.status == "Active") {
-        return res.json({ message: res.__("USER_ALREADY_VERIFIED...") });
+        return res.status(200).send({ status : true,message: res.__("USER_ALREADY_VERIFIED...") });
       }
       const verifyotp = await user.update(
         { isVerify: true, status: "Active" },
@@ -375,15 +388,14 @@ const verifyOtp = async (req, res) => {
         }
       );
       if (!verifyotp[0]) {
-        return res.json({ message: res.__("YOUR_OTP_IS_WRONG") });
+        return res.status(200).send({ status : true,message: res.__("YOUR_OTP_IS_WRONG") });
       } else {
-        return res.json({
-          mesaage: res.__(`CONGRATULATION_NOW_YOUR_PROFILE_IS_VERIFIED... `),
-        });
+        return res.status(200).send({ status : true,mesaage: res.__(`CONGRATULATION_NOW_YOUR_PROFILE_IS_VERIFIED... `),   });
       }
     }
-  } catch (e) {
-    return res.json({ message: e });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -397,7 +409,6 @@ const changepassword = async (req, res) => {
           password: req.user.password,
         },
       });
-
       if (oldPassoword.password == req.body.oldpassword) {
         let data = await user.update(
           { password: req.body.newpassword },
@@ -409,13 +420,14 @@ const changepassword = async (req, res) => {
         );
         return res.json({ data });
       } else {
-        return res.json({ message: res.__("OLD_PASSWORD DOES'T MATCH") });
+        return res.status(200).send({ status: true,message: res.__("OLD_PASSWORD DOES'T MATCH") });
       }
     } else {
-      return res.json({ message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH") });
+      return res.status(200).send({ status : true,message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH") });
     }
   } catch (error) {
     console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -431,11 +443,11 @@ const forgetPasswordmail = async (req, res) => {
     const find = await user.findOne({ where: { email: req.body.email } });
 
     let obj = { userName: find.userName, otp: otp };
-
     await sendMail("dishang.jnext@gmail.com", find.email, obj);
-    return res.json({ data });
+    return res.status(200).send({ status :true, records :data });
   } catch (error) {
     console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
@@ -455,30 +467,32 @@ const forgetPassword = async (req, res) => {
               },
             }
           );
-          return res.json({ data });
+          return res.status(200).send({ status : true, records : data });
         } else {
-          return res.json({
-            message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),
-          });
+          return res.status(200).send({status : true,message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),  });
         }
       } else {
-        return res.json({ message: res.__("YOUR_OTP_IS_WRONG") });
+        return res.status(200).send({ status : true ,message: res.__("YOUR_OTP_IS_WRONG") });
       }
     } else {
-      return res.json({ message: res.__("YOUR_OTP_IS_EXPIRED!!!") });
+      return res.status(200).send({ status : true ,message: res.__("YOUR_OTP_IS_EXPIRED!!!") });
     }
   } catch (error) {
     console.log(error);
+    return res.status(400).send({status : false ,message : error.message})
   }
 };
 
 module.exports = {
   getUser,
   allUser,
+  getAllRegister,
   createUser,
   loginUser,
+  updateUserWithoutAuth,
   updateUser,
-  deleteUser,
+  deleteUserWithoutAuth,
+  deleteUserWithAuth,
   roleUser,
   orderrole,
   onlyadmin,

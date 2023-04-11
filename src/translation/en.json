@@ -28,5 +28,7 @@
 	"CAN'T_ACCESS_FOR_UPDATE_RECORD": "can't_access_for_update_record",
 	"ITEM_NOT_DELETED!!!": "item_not_deleted!!!",
 	"Already Registered...": "Already Registered...",
-	"USER_NOT_FOUND" : "user not found"
+	"USER_NOT_FOUND" : "user not found",
+    "ACCOUNT_ALREADY_DELETED!!!" : ""
+	
 }

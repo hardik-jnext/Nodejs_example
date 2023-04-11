@@ -1,11 +1,9 @@
-const { order,item } = require("../config/Config");
+const { order, item } = require("../config/Config");
 const generateOrderNumber = require("../helpers/orderNumber.helper.js");
 
-
-// Task no.15 (Create getAll my orders API for current logged in user) 
+// Task no.15 (Create getAll my orders API for current logged in user)
 // Note : Task no. 16 (Add status in order. Decide data type ) in model
 //Task no.18 (Add filter by status in viewMyOrders api )
-
 
 const getOrder = async (req, res) => {
   try {
@@ -20,16 +18,19 @@ const getOrder = async (req, res) => {
       },
     });
     if (selectRecords && selectRecords[0]) {
-      res.send(selectRecords);
+      return res.status(200).send({ status: true, records: selectRecords });
     } else {
-      res.json({ message: res.__("STATUS_NOT_FOUND...") });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("STATUS_NOT_FOUND...") });
     }
   } catch (error) {
     console.log(error);
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
-//Task no.17 (Add separate getAll API to show all orders) 
+//Task no.17 (Add separate getAll API to show all orders)
 
 const getallOrder = async (req, res) => {
   try {
@@ -39,12 +40,12 @@ const getallOrder = async (req, res) => {
         attributes: ["itemName", "price"],
       },
     });
-    res.send(selectRecords);
+    return res.status(200).send({ status: true, records: selectRecords });
   } catch (error) {
     console.log(error);
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
-
 
 //Task no.14 (Add create order API )
 //Task no.23 (Check if Item expiry date is today or before today then it can't be ordered by user)
@@ -55,15 +56,11 @@ const createOrder = async (req, res) => {
     let checkItem = await item.findOne({ where: { id: req.body.item_id } });
     if (checkItem) {
       if (new Date(checkItem.expiryDate) < new Date()) {
-        res.json({ message: res.__("ITEM_EXPIRED!!!") });
+     return res.status(200).send({ stauts : false,error: res.__("ITEM_EXPIRED!!!") });
       } else {
         if (req.user.role == "Customer" && req.body.status == "Ordered") {
           if (req.user.status == "InActive") {
-            return res.json({
-              message: res.__(
-                "YOUR_STATUS_IS_INACTIVE_PLEASE_VERIFY_YOUR_EMAIL_ADRESS"
-              ),
-            });
+            return res.status(200).send({status : true ,message: res.__("YOUR_STATUS_IS_INACTIVE_PLEASE_VERIFY_YOUR_EMAIL_ADRESS"), });
           }
           let insertRecords = await order.create({
             user_id: req.user.id,
@@ -71,19 +68,19 @@ const createOrder = async (req, res) => {
             status: req.body.status,
             order_no: generateOrderNumber,
           });
-          res.send(insertRecords);
+        return res.status(200).send({status : true, records : insertRecords});
         } else {
-          res.json({ message: res.__("YOU_ARE_NOT_CUSTOMER") });
+         return res.status(200).send({ status : true ,message: res.__("YOU_ARE_NOT_CUSTOMER") });
         }
       }
     } else {
-      res.json({ message: res.__("ITEM_NOT-FOUND...") });
+      return res.status(200).send({ status : true ,message: res.__("ITEM_NOT-FOUND...") });
     }
   } catch (error) {
     console.log(error);
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
-
 
 //Task no 25.(Create new API for update orderStatus. )
 //Task no 26.(Create new API for update item, can be access by Manufacturer or Admin only)
@@ -102,18 +99,18 @@ const updateOrderstatus = async (req, res) => {
           { status: req.body.status },
           { where: { user_id: req.params.id } }
         );
-        res.send({ updatestatus });
+        res.status(200).send({status : true,records: updatestatus });
       } else {
-        res.json({ messsage: res.__("CAN'T_ACCESS!!!") });
+        res.status(200).send({status : true , messsage: res.__("CAN'T_ACCESS!!!") });
       }
     }
   } catch (error) {
-    res.send(error);
+    console.log(error);
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
-
-//Task no.27 (Create invoice generation API for customer for ordered amount and items)
+//Task no.27 (Create Invoice generation API for customer for ordered amount and items)
 
 const invoiceGenration = async (req, res) => {
   try {
@@ -129,9 +126,10 @@ const invoiceGenration = async (req, res) => {
       itemName: data.item.itemName,
       price: data.item.price,
     };
-    return res.send(obj);
+    return res.status(200).send({ status : true,records :obj});
   } catch (error) {
     console.log(error);
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 

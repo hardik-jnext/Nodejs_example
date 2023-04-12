@@ -32,5 +32,7 @@
     "ACCOUNT_ALREADY_DELETED!!!" : "account already deleted!!!",
 	"ITEM_DELETED_SUCCESSFULLY..." : "item deleted successfully...",
 	"INVALID_TOKEN" :"invalid token" ,
-	"TOKEN_NOT_FOUND" : "token not found"
+	"TOKEN_NOT_FOUND" : "token not found",
+	"MAIL_SEND_SUCCESSFULLY..." : "mail_send_successfully...",
+	"STATUS_UPDATED..." : "status_updated..." 
 }

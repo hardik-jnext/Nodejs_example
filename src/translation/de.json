@@ -33,7 +33,9 @@
 "ACCOUNT_ALREADY_DELETED!!!" : "konto bereits gelöscht!!!",
 "ITEM_DELETED_SUCCESSFULLY..." : "posten erfolgreich gelöscht...",
 "INVALID_TOKEN" :"ungültiger token",
-"TOKEN_NOT_FOUND" : "token nicht gefunden"
+"TOKEN_NOT_FOUND" : "token nicht gefunden",
+"MAIL_SEND_SUCCESSFULLY..." :"Erfolgreich_gesendet...",
+"STATUS_UPDATED..." :"Status_aktualisiert..." 
 }
 
 

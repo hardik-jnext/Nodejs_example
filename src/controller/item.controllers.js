@@ -20,7 +20,11 @@ const getItem = async (req, res) => {
       whereobj.order = [["expiryDate", "DESC"]];
     }
     let data = await item.findAll(whereobj);
-    return res.status(200).send({ status : true , records :data });
+   if(data.length){
+     return res.status(200).send({ status : true , records :data });
+   }else{
+     return res.status(200).send({status : true , message : res.__("RECORDS_NOT_FOUND...")})
+   }
   } catch (error) {
     console.log(error);
     return res.status(400).send({status : false ,message : error.message})
@@ -81,12 +85,18 @@ const updateItem = async (req, res) => {
 const checkdelete = async (req, res) => {
   try {
     let data = await order.findOne({ where: { item_id: req.params.id } });
+      console.log(!data);
+       
+    if(!data){
+        return res.status(200).send({status : true,message : res.__("RECORDS_NOT_FOUND...")})
+    }else{   
     if (data.status == "Ordered") {
       return res.status(200).send({ status : true,message: res.__("ITEM_NOT_DELETED!!!") });
     } else {
       let deletRecord = await item.destroy({ where: { id: data.item_id } });
       return res.status(200).send({status : true, message :res.__("ITEM_DELETED_SUCCESSFULLY...")});
     }
+  }
   } catch (error) {
     console.log(error);
     return res.status(400).send({status : false ,message : error.message})

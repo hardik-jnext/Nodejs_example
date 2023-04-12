@@ -40,7 +40,11 @@ const getallOrder = async (req, res) => {
         attributes: ["itemName", "price"],
       },
     });
-    return res.status(200).send({ status: true, records: selectRecords });
+    if(selectRecords.length){
+      return res.status(200).send({ status: true, records: selectRecords });
+    }else{
+      return res.status(200).send({status : true , message : res.__("RECORDS_NOT_FOUND...")})
+    }
   } catch (error) {
     console.log(error);
     return res.status(400).send({ status: false, message: error.message });
@@ -92,7 +96,7 @@ const updateOrderstatus = async (req, res) => {
         { status: req.body.status },
         { where: { id: req.params.id } }
       );
-      res.send({ updatestatus });
+      res.stauts(200).send({ status : true ,message : res.__("STATUS_UPDATED...") });
     } else if (req.user.role == "Customer") {
       if (req.body.status == "Ordered" || req.body.status == "Canceled") {
         const updatestatus = await order.update(
@@ -120,6 +124,9 @@ const invoiceGenration = async (req, res) => {
         attributes: ["itemName", "price"],
       },
     });
+ if(data == null){
+  return res.status(200).send({status : true, message : res.__("RECORDS_NOT_FOUND...")})
+ }else{
     let obj = {
       id: data.id,
       item_id: data.item_id,
@@ -127,6 +134,7 @@ const invoiceGenration = async (req, res) => {
       price: data.item.price,
     };
     return res.status(200).send({ status : true,records :obj});
+  }
   } catch (error) {
     console.log(error);
     return res.status(400).send({ status: false, message: error.message });

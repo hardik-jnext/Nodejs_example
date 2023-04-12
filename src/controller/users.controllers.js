@@ -22,7 +22,9 @@ const createUser = async (req, res) => {
     let body = req.body;
     let records = await user.findOne({ where: { email: body.email } });
     if (records && records.id) {
-      return res.status(200).send({status : true,message: res.__("ALREADY_REGISTERED..."),   });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("ALREADY_REGISTERED...") });
     } else {
       let expireDate = moment().add(5, "minutes");
       let data = await user.create({
@@ -37,11 +39,11 @@ const createUser = async (req, res) => {
       });
       let obj = { userName: data.userName, otp: data.otp };
       await sendMail("dishang.jnext@gmail.com", data.email, obj);
-      return res.status(200).send({ status : true , records : data});
+      return res.status(200).send({ status: true, records: data });
     }
   } catch (e) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -50,15 +52,16 @@ const createUser = async (req, res) => {
 const getAllRegister = async (req, res) => {
   try {
     let data = await user.findAll();
-    if(data.length){
-
-      return res.status(200).send({ status : true , records : data});
-    }else{
-      return res.status(200).send({status : true , Error : res.__("RECORDS_NOT_FOUND...")})
+    if (data.length) {
+      return res.status(200).send({ status: true, records: data });
+    } else {
+      return res
+        .status(200)
+        .send({ status: true, Error: res.__("RECORDS_NOT_FOUND...") });
     }
-      } catch (error) {
+  } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -67,15 +70,16 @@ const getAllRegister = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     let data = await user.findOne({ where: { id: req.params.id } });
-    
     if (data) {
-      return res.status(200).send({ status : true , records : data});
+      return res.status(200).send({ status: true, records: data });
     } else {
-       return res.status(200).send({status : true,message: res.__("USER_NOT_FOUND") });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("USER_NOT_FOUND") });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -91,16 +95,23 @@ const loginUser = async (req, res) => {
       raw: true,
     });
     if (!findUser) {
-      return res.status(200).send({status : true, message: res.__("USER_NOT_REGISTERD!!") });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("USER_NOT_REGISTERD!!") });
     }
     if (findUser.status == "InActive") {
-      return res.status(200).send({status : true,message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!") });
+      return res
+        .status(200)
+        .send({
+          status: true,
+          message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
+        });
     }
     let token = jwt.sign(findUser, secretkey);
     return res.send({ token });
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -109,14 +120,16 @@ const loginUser = async (req, res) => {
 const allUser = async (req, res) => {
   try {
     let data = await user.findAll();
-         if(!data){
-          return res.status(200).send({status : true,message : res.__("RECORDS_NOT_FOUND...")})
-         }else{
-          return res.status(200).send({status : true,users : data})
-         }
+    if (!data) {
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("RECORDS_NOT_FOUND...") });
+    } else {
+      return res.status(200).send({ status: true, users: data });
+    }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false, err: error });
+    return res.status(400).send({ status: false, err: error });
   }
 };
 
@@ -134,13 +147,15 @@ const updateUserWithoutAuth = async (req, res) => {
       { where: { id: req.params.id } }
     );
     if ([!updated[0]]) {
-     return res.status(200).send({ status : true,message: res.__("NOT_UPDATED...") });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("NOT_UPDATED...") });
     }
     let data = await user.findOne({ where: { id: req.params.id } });
-   return res.status(200).send({ status : true, records : data });
+    return res.status(200).send({ status: true, records: data });
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -150,10 +165,15 @@ const updateUser = async (req, res) => {
   try {
     let records = await user.findOne({ where: { id: req.user.id } });
     if (records.status == "InActive") {
-      return res.status(200).send({status : true,message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!") });
+      return res
+        .status(200)
+        .send({
+          status: true,
+          message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
+        });
     }
     if (!records) {
-     return res.json({ message: res.__("RECORDS_NOT_FOUND...") });
+      return res.json({ message: res.__("RECORDS_NOT_FOUND...") });
     } else {
       let update = await user.update(
         {
@@ -168,14 +188,18 @@ const updateUser = async (req, res) => {
       );
       if (update && update[0]) {
         let record = await user.findOne({ where: { id: records.id } });
-      return  res.status(200).send({status : true, message: res.__("UPDATED..."), data: record });
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("UPDATED..."), data: record });
       } else {
-       return  res.status(200).send({ status : true,message: res.__("NOT_UPDATED") });
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("NOT_UPDATED") });
       }
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -185,13 +209,15 @@ const deleteUserWithAuth = async (req, res) => {
   try {
     let data = await user.destroy({ where: { id: req.user.id } });
     if (data && data[0]) {
-    return  res.json({ message: res.__("ACCOUNT_CAN'T_DELETED") });
+      return res.json({ message: res.__("ACCOUNT_CAN'T_DELETED") });
     } else {
-      return res.status(200).send({ status : true, message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -200,14 +226,18 @@ const deleteUserWithAuth = async (req, res) => {
 const deleteUserWithoutAuth = async (req, res) => {
   try {
     let data = await user.destroy({ where: { id: req.params.id } });
-     if(!data){
-      return res.status(200).send({status : 200,error : res.__("ACCOUNT_ALREADY_DELETED!!!")})
-     }else{
-     return res.status(200).send({ status : true, message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
-     }
+    if (!data) {
+      return res
+        .status(200)
+        .send({ status: 200, error: res.__("ACCOUNT_ALREADY_DELETED!!!") });
+    } else {
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("YOUR_ACCOUNT_WAS_DELETED!!!") });
+    }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -217,18 +247,22 @@ const roleUser = async (req, res) => {
   try {
     if (req.user.role == "Admin") {
       const data = await user.findAll();
-      if(data.length){
-
-        return res.status(200).send({status : true,records : data})
-      }else{
-        return res.status(200).send({status : true,message :"RECORDS_NOT_FOUND" })
+      if (data.length) {
+        return res.status(200).send({ status: true, records: data });
+      } else {
+        return res
+          .status(200)
+          .send({ status: true, message: "RECORDS_NOT_FOUND" });
       }
     } else {
-     return res.status.send({ status : true,error: res.__("YOU_CAN'T_ACCSES") });
+      return res.status.send({
+        status: true,
+        error: res.__("YOU_CAN'T_ACCSES"),
+      });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -238,26 +272,36 @@ const orderrole = async (req, res) => {
   try {
     if (req.user.role == "Admin") {
       const data = await order.findAll();
-      return res.status(200).send({status : true,records : data})
+      if (data.length) {
+        return res.status(200).send({ status: true, records: data });
+      } else {
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("RECORDS_NOT_FOUND...") });
+      }
     } else if (req.user.role == "Customer") {
       const data = await order.findOne({ where: { user_id: req.user.id } });
-      return res.status(200).send({status : true,records : data})
+      return res.status(200).send({ status: true, records: data });
     } else if (req.user.role == "Manufacturer") {
       const data = await order.findAll({
         include: [{ model: item, attributes: ["itemName", "manufature_id"] }],
         where: { user_id: req.user.id },
       });
       if (data && data[0]) {
-      return  res.status(200).send({status : true,message :data});
+        return res.status(200).send({ status: true, message: data });
       } else {
-       return  res.status(200).send({ status : true,error: res.__("ORDER_NOT_FOUND") });
+        return res
+          .status(200)
+          .send({ status: true, error: res.__("ORDER_NOT_FOUND") });
       }
     } else {
-      return  res.status(200).send({ status : true,error: res.__("ROLE_NOT_FOUND") });
+      return res
+        .status(200)
+        .send({ status: true, error: res.__("ROLE_NOT_FOUND") });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -303,14 +347,18 @@ const onlyadmin = async (req, res) => {
             role: "Customer",
           },
         });
-             return res.status(200).send({ status : true,ordered: data.length, customer: user_id });
+        return res
+          .status(200)
+          .send({ status: true, ordered: data.length, customer: user_id });
       } else {
-        return res.status(200).send({ status : true,error: res.__("Records_NOT_FOUND...") });
+        return res
+          .status(200)
+          .send({ status: true, error: res.__("RECORDS_NOT_FOUND...") });
       }
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -320,14 +368,13 @@ const deleteItem = async (req, res) => {
   try {
     if (req.user.role == "Admin") {
       const deleteitem = await item.destroy({ where: { id: req.params.id } });
-
-      res.json(deleteitem);
+      res.status(200).send({status : true , message :"ITEM_DELETED_SUCCESSFULLY..."});
     } else {
-      res.json({ mesaage: res.__("YOU_CAN'T_ACCSES") });
+      res.status(200).send({ status : true,mesaage: res.__("YOU_CAN'T_ACCSES") });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -364,10 +411,10 @@ const sendmail = async (req, res) => {
       }
       console.log("Message sent:", info);
     });
-    return  res.status(200).send({status : true,message : "Done..."});
+    return res.status(200).send({ status: true, message: res.__("MAIL_SEND_SUCCESSFULLY...") });
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -380,10 +427,14 @@ const verifyOtp = async (req, res) => {
     });
     let currentdate = moment().utc();
     if (verifyEmail.expireOtpTime < currentdate) {
-      return res.status(200).send({ status : true ,error: res.__("OTP_EXPIRED!!!") });
+      return res
+        .status(200)
+        .send({ status: true, error: res.__("OTP_EXPIRED!!!") });
     } else {
       if (verifyEmail.status == "Active") {
-        return res.status(200).send({ status : true,message: res.__("USER_ALREADY_VERIFIED...") });
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("USER_ALREADY_VERIFIED...") });
       }
       const verifyotp = await user.update(
         { isVerify: true, status: "Active" },
@@ -394,14 +445,21 @@ const verifyOtp = async (req, res) => {
         }
       );
       if (!verifyotp[0]) {
-        return res.status(200).send({ status : true,message: res.__("YOUR_OTP_IS_WRONG") });
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("YOUR_OTP_IS_WRONG") });
       } else {
-        return res.status(200).send({ status : true,mesaage: res.__(`CONGRATULATION_NOW_YOUR_PROFILE_IS_VERIFIED... `),   });
+        return res
+          .status(200)
+          .send({
+            status: true,
+            mesaage: res.__(`CONGRATULATION_NOW_YOUR_PROFILE_IS_VERIFIED... `),
+          });
       }
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -426,14 +484,21 @@ const changepassword = async (req, res) => {
         );
         return res.json({ data });
       } else {
-        return res.status(200).send({ status: true,message: res.__("OLD_PASSWORD DOES'T MATCH") });
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("OLD_PASSWORD DOES'T MATCH") });
       }
     } else {
-      return res.status(200).send({ status : true,message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH") });
+      return res
+        .status(200)
+        .send({
+          status: true,
+          message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH"),
+        });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 
@@ -447,21 +512,24 @@ const forgetPasswordmail = async (req, res) => {
       { where: { email: req.body.email } }
     );
     const find = await user.findOne({ where: { email: req.body.email } });
-
-    let obj = { userName: find.userName, otp: otp };
-    await sendMail("dishang.jnext@gmail.com", find.email, obj);
-    return res.status(200).send({ status :true, records :data });
+    if(!find){
+      let obj = { userName: find.userName, otp: otp };
+      await sendMail("dishang.jnext@gmail.com", find.email, obj);
+      return res.status(200).send({ status: true, records: data });
+    }else{
+       return res.status(200).send({status : true,message : "RECORDS_NOT_FOUND..."})
+    }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
+
 
 const forgetPassword = async (req, res) => {
   try {
     let find = await user.findOne({ where: { email: req.body.email } });
     let currentdate = moment().utc();
-
     if (find.expireOtpTime > currentdate) {
       if (find.otp == req.params.otp) {
         if (req.body.newpassword === req.body.confimpassword) {
@@ -473,19 +541,28 @@ const forgetPassword = async (req, res) => {
               },
             }
           );
-          return res.status(200).send({ status : true, records : data });
+          return res.status(200).send({ status: true, records: data });
         } else {
-          return res.status(200).send({status : true,message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),  });
+          return res
+            .status(200)
+            .send({
+              status: true,
+              message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),
+            });
         }
       } else {
-        return res.status(200).send({ status : true ,message: res.__("YOUR_OTP_IS_WRONG") });
+        return res
+          .status(200)
+          .send({ status: true, message: res.__("YOUR_OTP_IS_WRONG") });
       }
     } else {
-      return res.status(200).send({ status : true ,message: res.__("YOUR_OTP_IS_EXPIRED!!!") });
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("YOUR_OTP_IS_EXPIRED!!!") });
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send({status : false ,message : error.message})
+    return res.status(400).send({ status: false, message: error.message });
   }
 };
 

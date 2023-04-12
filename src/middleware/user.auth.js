@@ -11,14 +11,12 @@ const authUser = async(req, res, next) => {
     let decode = jwt.verify(token, secretkey);
     let userData = await user.findOne({ where: { id: decode.id } });
     if (!userData) {
-      res.json({
-        message: "Invalid token",
-      });
+      res.status(200).send({status : true,message: res.__("INVALID_TOKEN"), });
     } 
       req.user = JSON.parse(JSON.stringify(userData));
     next();
   } catch (error) {
-    res.send("Token not found");
+    res.status(200).send({status : true, message : res.__("TOKEN_NOT_FOUND")});
   }
 };
 module.exports = authUser;

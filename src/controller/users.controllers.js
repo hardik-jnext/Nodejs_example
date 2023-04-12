@@ -3,7 +3,7 @@ const user = db.user;
 const jwt = require("jsonwebtoken");
 const { order, item } = require("../config/Config.js");
 const secretkey = "hello";
-const { QueryTypes, Op } = require("sequelize");
+const { QueryTypes, Op, DATE } = require("sequelize");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const Handlebars = require("handlebars");
@@ -22,10 +22,9 @@ const createUser = async (req, res) => {
     let body = req.body;
     let records = await user.findOne({ where: { email: body.email } });
     if (records && records.id) {
-      return res.status(200).send({status : true,message: res.__("Already Registered..."),   });
+      return res.status(200).send({status : true,message: res.__("ALREADY_REGISTERED..."),   });
     } else {
       let expireDate = moment().add(5, "minutes");
-
       let data = await user.create({
         userName: body.userName,
         email: body.email,
@@ -51,7 +50,12 @@ const createUser = async (req, res) => {
 const getAllRegister = async (req, res) => {
   try {
     let data = await user.findAll();
-    return res.status(200).send({ status : true , records : data});
+    if(data.length){
+
+      return res.status(200).send({ status : true , records : data});
+    }else{
+      return res.status(200).send({status : true , Error : res.__("RECORDS_NOT_FOUND...")})
+    }
       } catch (error) {
     console.log(error);
     return res.status(400).send({status : false ,message : error.message})
@@ -92,7 +96,6 @@ const loginUser = async (req, res) => {
     if (findUser.status == "InActive") {
       return res.status(200).send({status : true,message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!") });
     }
-
     let token = jwt.sign(findUser, secretkey);
     return res.send({ token });
   } catch (error) {
@@ -113,7 +116,7 @@ const allUser = async (req, res) => {
          }
   } catch (error) {
     console.log(error);
-    return res.json({ err: error });
+    return res.status(400).send({status : false, err: error });
   }
 };
 
@@ -134,7 +137,7 @@ const updateUserWithoutAuth = async (req, res) => {
      return res.status(200).send({ status : true,message: res.__("NOT_UPDATED...") });
     }
     let data = await user.findOne({ where: { id: req.params.id } });
-   return res.json({ data });
+   return res.status(200).send({ status : true, records : data });
   } catch (error) {
     console.log(error);
     return res.status(400).send({status : false ,message : error.message})
@@ -147,9 +150,7 @@ const updateUser = async (req, res) => {
   try {
     let records = await user.findOne({ where: { id: req.user.id } });
     if (records.status == "InActive") {
-      return res.json({
-        message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
-      });
+      return res.status(200).send({status : true,message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!") });
     }
     if (!records) {
      return res.json({ message: res.__("RECORDS_NOT_FOUND...") });
@@ -169,7 +170,7 @@ const updateUser = async (req, res) => {
         let record = await user.findOne({ where: { id: records.id } });
       return  res.status(200).send({status : true, message: res.__("UPDATED..."), data: record });
       } else {
-       return  res.json({ message: res.__("NOT_UPDATED") });
+       return  res.status(200).send({ status : true,message: res.__("NOT_UPDATED") });
       }
     }
   } catch (error) {
@@ -216,7 +217,12 @@ const roleUser = async (req, res) => {
   try {
     if (req.user.role == "Admin") {
       const data = await user.findAll();
-     return res.status(200).send({status : true,records : data})
+      if(data.length){
+
+        return res.status(200).send({status : true,records : data})
+      }else{
+        return res.status(200).send({status : true,message :"RECORDS_NOT_FOUND" })
+      }
     } else {
      return res.status.send({ status : true,error: res.__("YOU_CAN'T_ACCSES") });
     }

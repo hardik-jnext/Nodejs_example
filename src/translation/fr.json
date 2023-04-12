@@ -27,6 +27,12 @@
 	"CAN'T_ACCESS_FOR_INSERT_RECORD": "impossible d'accéder pour insérer un enregistrement",
 	"CAN'T_ACCESS_FOR_UPDATE_RECORD": "impossible d'accéder pour mettre à jour un enregistrement",
 	"ITEM_NOT_DELETED!!!": "élément non supprimé !!!",
-	"Already Registered...": "Déjà enregistré...",
-	"USER_NOT_FOUND" :"utilisateur non trouvé"
+	"ALREADY_REGISTERED...": "Déjà enregistré...",
+	"USER_NOT_FOUND" :"utilisateur non trouvé",
+	"ACCOUNT_ALREADY_DELETED!!!" : "compte deja supprimé!!!" ,
+	"ITEM_DELETED_SUCCESSFULLY..." : "élément supprimé avec succès...",
+	"INVALID_TOKEN" :"jeton invalide",
+	"TOKEN_NOT_FOUND" : "jeton non trouvé"
 	}
+
+

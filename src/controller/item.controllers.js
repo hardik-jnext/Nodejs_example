@@ -20,7 +20,7 @@ const getItem = async (req, res) => {
       whereobj.order = [["expiryDate", "DESC"]];
     }
     let data = await item.findAll(whereobj);
-    return res.send({ data });
+    return res.status(200).send({ status : true , records :data });
   } catch (error) {
     console.log(error);
     return res.status(400).send({status : false ,message : error.message})
@@ -41,7 +41,7 @@ const createItem = async (req, res) => {
         manufature_id: body.manufature_id,
         item_image: body.item_image,
       });
-      return res.send({ data });
+      return res.status(200).send({ status : true , records :data });
     } else {
       res.json({ message: res.__("CAN'T_ACCESS_FOR_INSERT_RECORD") });
     }
@@ -67,9 +67,9 @@ const updateItem = async (req, res) => {
         },
         { where: { id: req.params.id } }
       );
-      return res.send({ data });
+      return res.status(200).send({ status : true , records :data });
     } else {
-      res.json({ message: res.__("CAN'T_ACCESS_FOR_UPDATE_RECORD") });
+      res.status(200).send({ status : true,message: res.__("CAN'T_ACCESS_FOR_UPDATE_RECORD") });
     }
   } catch (error) {
     console.log(error);
@@ -82,10 +82,10 @@ const checkdelete = async (req, res) => {
   try {
     let data = await order.findOne({ where: { item_id: req.params.id } });
     if (data.status == "Ordered") {
-      res.json({ message: res.__("ITEM_NOT_DELETED!!!") });
+      return res.status(200).send({ status : true,message: res.__("ITEM_NOT_DELETED!!!") });
     } else {
       let deletRecord = await item.destroy({ where: { id: data.item_id } });
-      return res.json(deletRecord);
+      return res.status(200).send({status : true, message :res.__("ITEM_DELETED_SUCCESSFULLY...")});
     }
   } catch (error) {
     console.log(error);

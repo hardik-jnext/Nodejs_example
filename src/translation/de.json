@@ -28,5 +28,14 @@
 "CAN'T_ACCESS_FOR_INSERT_RECORD":"Kann nicht auf den Eintrag eines Datensatzes zugreifen",
 "CAN'T_ACCESS_FOR_UPDATE_RECORD": "Kann nicht auf einen Datensatz zugreifen",
 "ITEM_NOT_DELETED!!!": "Element nicht gelöscht!!!",
-"USER_NOT_FOUND" : "Benutzer nicht gefunden"
+"ALREADY_REGISTERED..." : "bereits egistriert...",
+"USER_NOT_FOUND" : "Benutzer nicht gefunden",
+"ACCOUNT_ALREADY_DELETED!!!" : "konto bereits gelöscht!!!",
+"ITEM_DELETED_SUCCESSFULLY..." : "posten erfolgreich gelöscht...",
+"INVALID_TOKEN" :"ungültiger token",
+"TOKEN_NOT_FOUND" : "token nicht gefunden"
 }
+
+
+
+

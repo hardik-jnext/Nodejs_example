@@ -33,9 +33,9 @@ const createUser = async (req, res) => {
         age: body.age,
         address: body.address,
         role: body.role,
-        status: body.status,
         otp: otp,
         expireOtpTime: expireDate,
+        password: body.password
       });
       let obj = { userName: data.userName, otp: data.otp };
       await sendMail("dishang.jnext@gmail.com", data.email, obj);
@@ -99,6 +99,9 @@ const loginUser = async (req, res) => {
         .status(200)
         .send({ status: true, message: res.__("USER_NOT_REGISTERD!!") });
     }
+    if(findUser.password != body.password){
+          return res.status(200).send({status : true,message : res.__("INVALID_PASSWORD")})
+    }
     if (findUser.status == "InActive") {
       return res
         .status(200)
@@ -137,7 +140,7 @@ const allUser = async (req, res) => {
 
 const updateUserWithoutAuth = async (req, res) => {
   try {
-    let [updated] = await user.update(
+    let updated= await user.update(
       {
         userName: req.body.userName,
         email: req.body.email,
@@ -146,13 +149,13 @@ const updateUserWithoutAuth = async (req, res) => {
       },
       { where: { id: req.params.id } }
     );
-    if ([!updated[0]]) {
+    if (!updated[0]) {
       return res
         .status(200)
         .send({ status: true, message: res.__("NOT_UPDATED...") });
     }
     let data = await user.findOne({ where: { id: req.params.id } });
-    return res.status(200).send({ status: true, records: data });
+    return res.status(200).send({ status: true,message : res.__("UPDATED"),records: data });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ status: false, message: error.message });
@@ -163,6 +166,7 @@ const updateUserWithoutAuth = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+    let expireDate = moment().add(5, "minutes");
     let records = await user.findOne({ where: { id: req.user.id } });
     if (records.status == "InActive") {
       return res
@@ -182,7 +186,7 @@ const updateUser = async (req, res) => {
           age: req.body.age,
           address: req.body.address,
           otp: otp,
-          expireOtpTime: local,
+          expireOtpTime: expireDate,
         },
         { where: { id: records.id } }
       );
@@ -255,7 +259,7 @@ const roleUser = async (req, res) => {
           .send({ status: true, message: "RECORDS_NOT_FOUND" });
       }
     } else {
-      return res.status.send({
+      return res.status(200).send({
         status: true,
         error: res.__("YOU_CAN'T_ACCSES"),
       });
@@ -304,6 +308,7 @@ const orderrole = async (req, res) => {
     return res.status(400).send({ status: false, message: error.message });
   }
 };
+
 
 //Task no. 30 && 32 && 34
 
@@ -362,21 +367,7 @@ const onlyadmin = async (req, res) => {
   }
 };
 
-//Task no.31 (Create one Delete Item api which can be accessed by Admin)
 
-const deleteItem = async (req, res) => {
-  try {
-    if (req.user.role == "Admin") {
-      const deleteitem = await item.destroy({ where: { id: req.params.id } });
-      res.status(200).send({status : true , message :"ITEM_DELETED_SUCCESSFULLY..."});
-    } else {
-      res.status(200).send({ status : true,mesaage: res.__("YOU_CAN'T_ACCSES") });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(400).send({ status: false, message: error.message });
-  }
-};
 
 const sendmail = async (req, res) => {
   try {
@@ -425,6 +416,9 @@ const verifyOtp = async (req, res) => {
     const verifyEmail = await user.findOne({
       where: { email: req.body.email },
     });
+     if(verifyEmail.otp != req.params.otp){
+       return res.status(200).send({status:true,message : res.__("INVALID_OTP")})
+     }
     let currentdate = moment().utc();
     if (verifyEmail.expireOtpTime < currentdate) {
       return res
@@ -510,14 +504,15 @@ const forgetPasswordmail = async (req, res) => {
     const data = await user.update(
       { otp: otp, expireOtpTime: expireDate },
       { where: { email: req.body.email } }
-    );
-    const find = await user.findOne({ where: { email: req.body.email } });
+      );
+      const find = await user.findOne({ where: { email: req.body.email } });
+      console.log(find.userName);
     if(!find){
+      return res.status(200).send({status : true,message : res.__("RECORDS_NOT_FOUND...")})
+    }else{
       let obj = { userName: find.userName, otp: otp };
       await sendMail("dishang.jnext@gmail.com", find.email, obj);
-      return res.status(200).send({ status: true, records: data });
-    }else{
-       return res.status(200).send({status : true,message : "RECORDS_NOT_FOUND..."})
+      return res.status(200).send({ status: true, records: data , message : res.__("MAIL_SENT...") });
     }
   } catch (error) {
     console.log(error);
@@ -579,7 +574,6 @@ module.exports = {
   roleUser,
   orderrole,
   onlyadmin,
-  deleteItem,
   sendmail,
   verifyOtp,
   changepassword,

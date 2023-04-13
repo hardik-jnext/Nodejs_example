@@ -1,6 +1,9 @@
 const {DataTypes} = require('sequelize')
 
 
+
+
+
 module.exports = (sequelize,Sequelize)=>{
  let order = sequelize.define("order",{
      user_id :{

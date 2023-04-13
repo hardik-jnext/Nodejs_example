@@ -34,8 +34,9 @@
 "ITEM_DELETED_SUCCESSFULLY..." : "posten erfolgreich gelöscht...",
 "INVALID_TOKEN" :"ungültiger token",
 "TOKEN_NOT_FOUND" : "token nicht gefunden",
-"MAIL_SEND_SUCCESSFULLY..." :"Erfolgreich_gesendet...",
-"STATUS_UPDATED..." :"Status_aktualisiert..." 
+"MAIL_SEND_SUCCESSFULLY..." :"Erfolgreich gesendet...",
+"STATUS_UPDATED..." :"Status aktualisiert...",
+"INVALID_PASSWORD" :"Ihr Passwort ist gültig"
 }
 
 

@@ -7,8 +7,16 @@ const usercreatevalid = {
         email :Joi.string().required(),
         age : Joi.number().integer().required(),
         address :Joi.string().required(),
-        role : Joi.string().required(),      
+        role : Joi.string().required(),
+        password : Joi.string().required()      
         })
+}
+
+const loginvalid ={
+    [Segments.BODY]: Joi.object().keys({
+        email : Joi.string().required(),
+        password : Joi.string().required()
+    })
 }
 
 const findUser ={
@@ -53,4 +61,4 @@ const forgetPasswordvalid = {
     }
 }
 
-module.exports = {usercreatevalid,findUser,updateUservalidation,onlyadminValidation,changepasswordvalid,forgetPasswordvalid}
+module.exports = {usercreatevalid,findUser,updateUservalidation,onlyadminValidation,changepasswordvalid,forgetPasswordvalid,loginvalid}

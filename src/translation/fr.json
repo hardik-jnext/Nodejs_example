@@ -33,6 +33,7 @@
 	"ITEM_DELETED_SUCCESSFULLY..." : "élément supprimé avec succès...",
 	"INVALID_TOKEN" :"jeton invalide",
 	"TOKEN_NOT_FOUND" : "jeton non trouvé",
-	"MAIL_SEND_SUCCESSFULLY..." : "mail_envoyé_avec_succès...",
-	"STATUS_UPDATED..." :"statut_mis_à_jour..."
+	"MAIL_SEND_SUCCESSFULLY..." : "mail envoyé avec succès...",
+	"STATUS_UPDATED..." :"statut mis à jour...",
+	"INVALID_PASSWORD" :"Votre mot de passe est valide" 
 	}

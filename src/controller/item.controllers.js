@@ -34,6 +34,7 @@ const getItem = async (req, res) => {
 // create item
 
 
+
 const createItem = async (req, res) => {
   try {
     if (req.user.role == "Admin" || req.user.role == "Manufacturer") {
@@ -80,7 +81,7 @@ const updateItem = async (req, res) => {
     return res.status(400).send({status : false ,message : error.message})
 };
 }
-//Task no.33 (Add check in delete item api, that if item is exist in order table and it has status ordered then item can't be deleted)
+//Task no.31 & 33 (Add check in delete item api, that if item is exist in order table and it has status ordered then item can't be deleted)
 
 const checkdelete = async (req, res) => {
   try {

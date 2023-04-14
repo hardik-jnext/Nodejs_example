@@ -30,7 +30,7 @@ module.exports = (sequelize,Sequelize)=>{
        },
        isVerify :{
          type : DataTypes.BOOLEAN,
-         defaultValue : "false"
+         defaultValue : false
        },otp :{
         type : DataTypes.INTEGER
        },

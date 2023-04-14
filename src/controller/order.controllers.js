@@ -171,10 +171,41 @@ const invoiceGenration = async (req, res) => {
   }
 };
 
+
+const payment = async(req,res)=>{
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+      
+    var paymentIntent = event.data.object;
+      // Fulfill the order...
+      break;
+    case 'payment_intent.payment_failed':
+      var paymentIntent = event.data.object;
+      var paymentError = paymentIntent.last_payment_error.message;
+      // Notify the user of the payment failure...
+      break;
+  }
+
+  // Return a response to acknowledge receipt of the event
+  res.json({received: true});
+};
+
+
 module.exports = {
   getOrder,
   createOrder,
   getallOrder,
   updateOrderstatus,
   invoiceGenration,
+  payment
 };

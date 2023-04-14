@@ -6,6 +6,7 @@ const {
   getallOrder,
   updateOrderstatus,
   invoiceGenration,
+  payment
 } = require("../controller/order.controllers.js");
 const userauth = require("../middleware/user.auth.js");
 const {
@@ -14,6 +15,8 @@ const {
   updateordervalid,
 } = require("../validator/order.validator.js");
 const { celebrate, Joi, errors, Segments } = require("celebrate");
+const body = require("body-parser")
+
 
 /**
  *@swagger
@@ -193,5 +196,12 @@ router.put(
  */
 
 router.get("/invoice", userauth, invoiceGenration);
+
+
+//stripe payment
+
+
+router.post("/payment", body.raw({type: 'application/json'}),payment)
+
 
 module.exports = router;

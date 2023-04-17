@@ -28,6 +28,7 @@
 "CAN'T_ACCESS_FOR_INSERT_RECORD":"Kann nicht auf den Eintrag eines Datensatzes zugreifen",
 "CAN'T_ACCESS_FOR_UPDATE_RECORD": "Kann nicht auf einen Datensatz zugreifen",
 "ITEM_NOT_DELETED!!!": "Element nicht gelöscht!!!",
+"ERROR":"",
 "ALREADY_REGISTERED..." : "bereits egistriert...",
 "USER_NOT_FOUND" : "Benutzer nicht gefunden",
 "ACCOUNT_ALREADY_DELETED!!!" : "konto bereits gelöscht!!!",
@@ -36,7 +37,9 @@
 "TOKEN_NOT_FOUND" : "token nicht gefunden",
 "MAIL_SEND_SUCCESSFULLY..." :"Erfolgreich gesendet...",
 "STATUS_UPDATED..." :"Status aktualisiert...",
-"INVALID_PASSWORD" :"Ihr Passwort ist gültig"
+"INVALID_PASSWORD" :"Ihr Passwort ist gültig",
+"SOMETHING_WENT_WRONG" :"Etwas ist schiefgelaufen",
+"PAYMENT_SUCCESSFUL" : "Zahlung erfolgreich"
 }
 
 

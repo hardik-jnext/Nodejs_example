@@ -39,6 +39,9 @@ module.exports = (sequelize,Sequelize)=>{
        },
        password :{
         type : DataTypes.CHAR
+       },
+       Customer_id : {
+        type : DataTypes.STRING
        }
     
     

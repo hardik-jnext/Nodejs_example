@@ -13,9 +13,12 @@ const {
   ordervalid,
   createOrdervalid,
   updateordervalid,
+  validpayment
 } = require("../validator/order.validator.js");
 const { celebrate, Joi, errors, Segments } = require("celebrate");
 const body = require("body-parser")
+const authUser = require("../middleware/user.auth.js")
+
 
 
 /**
@@ -200,8 +203,41 @@ router.get("/invoice", userauth, invoiceGenration);
 
 //stripe payment
 
-
-router.post("/payment", body.raw({type: 'application/json'}),payment)
+/**
+ * @swagger
+ * /order/orderpayment:
+ *     post:
+ *       tags:
+ *         - Orders
+ *       security:
+ *         - bearerAuth: []
+ *       summary: payment gateway
+ *       description: payment gateway
+ *       requestBody:
+ *           required: true
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                     cardnumber:
+ *                       type: integer
+ *                     exp_month:
+ *                       type: integer
+ *                     exp_year:
+ *                       type: integer
+ *                     cvv:
+ *                       type: integer
+ *       responses:
+ *          200:
+ *            description : payment
+ *            content:
+ *              application/json:
+ *                schema:
+ *                   type: array
+ *
+ */
+router.post("/orderpayment",celebrate(validpayment),authUser,payment)
 
 
 module.exports = router;

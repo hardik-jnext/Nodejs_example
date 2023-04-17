@@ -1,3 +1,6 @@
+var Secret_Key = process.env.STRIPE_SECRET_KEY;
+const stripe = require("stripe")(Secret_Key);
+require("dotenv").config();
 const { where } = require("sequelize");
 const { order, item } = require("../config/Config");
 const generateOrderNumber = require("../helpers/orderNumber.helper.js");
@@ -75,14 +78,12 @@ const createOrder = async (req, res) => {
       } else {
         if (req.user.role == "Customer" && req.body.status == "Ordered") {
           if (req.user.status == "InActive") {
-            return res
-              .status(200)
-              .send({
-                status: true,
-                message: res.__(
-                  "YOUR_STATUS_IS_INACTIVE_PLEASE_VERIFY_YOUR_EMAIL_ADRESS"
-                ),
-              });
+            return res.status(200).send({
+              status: true,
+              message: res.__(
+                "YOUR_STATUS_IS_INACTIVE_PLEASE_VERIFY_YOUR_EMAIL_ADRESS"
+              ),
+            });
           }
           let insertRecords = await order.create({
             user_id: req.user.id,
@@ -171,35 +172,78 @@ const invoiceGenration = async (req, res) => {
   }
 };
 
-
-const payment = async(req,res)=>{
-  const sig = req.headers['stripe-signature'];
-  let event;
-
+const payment = async (req, res) => {
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    if (req.user.Customer_id == null) {
+      return res
+        .status(200)
+        .send({ status: true, message: "please login first" });
+    } else {
+      let cardDetail = {};
+      cardDetail.card = {
+        number: req.body.cardnumber,
+        exp_month: req.body.exp_month,
+        exp_year: req.body.exp_year,
+        cvv: req.body.cvv,
+      };
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      
-    var paymentIntent = event.data.object;
-      // Fulfill the order...
-      break;
-    case 'payment_intent.payment_failed':
-      var paymentIntent = event.data.object;
-      var paymentError = paymentIntent.last_payment_error.message;
-      // Notify the user of the payment failure...
-      break;
-  }
+      stripe.tokens.create(cardDetail, async (err, token) => {
+        if (err) {
+          return res
+            .status(200)
+            .send({ status: 200, message: res.__("ERROR") });
+        }
+        if (token) {
+          let selectRecords = await order.findOne({
+            where: { user_id: req.user.id },
+          });
+          if (selectRecords) {
+            let itemPrice = await item.findOne({
+              where: { id: selectRecords.item_id },
+            });
+          } else {
+            return res
+              .status(200)
+              .send({ status: true, message: res.__("RECORDS_NOT_FOUND...")});
+          }
 
-  // Return a response to acknowledge receipt of the event
-  res.json({received: true});
+          let params = {
+            amount: itemPrice * 100,
+            currency: "usd",
+            description: "my first payment",
+            source: token.id,
+            customer: token.Customer_id,
+          };
+          stripe.charges.create(params, async (err, charge) => {
+            if (err) {
+              console.log(err);
+              return res.send(err);
+            }
+            if (charge.paid == true) {
+              await order.update(
+                { status: "Dispached" },
+                { where: { user_id: req.user.id } }
+              );
+              return res
+                .status(200)
+                .send({ status: true, message: res.__("PAYMENT_SUCCESSFUL" )});
+            } else {
+              return res
+              .status(200)
+              .send({ status: true, message: res.__("SOMETHING_WENT_WRONG" )});
+            }
+          });
+        } else {
+          return res
+            .status(200)
+            .send({ status: true, message: res.__("SOMETHING_WENT_WRONG" )});
+        }
+      });
+    }
+  } catch (error) {
+    return res.status(200).send({ status: true, message: error });
+  }
 };
-
 
 module.exports = {
   getOrder,
@@ -207,5 +251,5 @@ module.exports = {
   getallOrder,
   updateOrderstatus,
   invoiceGenration,
-  payment
+  payment,
 };

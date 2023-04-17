@@ -27,6 +27,7 @@
 	"CAN'T_ACCESS_FOR_INSERT_RECORD": "impossible d'accéder pour insérer un enregistrement",
 	"CAN'T_ACCESS_FOR_UPDATE_RECORD": "impossible d'accéder pour mettre à jour un enregistrement",
 	"ITEM_NOT_DELETED!!!": "élément non supprimé !!!",
+	"ERROR" : "erruer",
 	"ALREADY_REGISTERED...": "Déjà enregistré...",
 	"USER_NOT_FOUND" :"utilisateur non trouvé",
 	"ACCOUNT_ALREADY_DELETED!!!" : "compte deja supprimé!!!" ,
@@ -35,5 +36,7 @@
 	"TOKEN_NOT_FOUND" : "jeton non trouvé",
 	"MAIL_SEND_SUCCESSFULLY..." : "mail envoyé avec succès...",
 	"STATUS_UPDATED..." :"statut mis à jour...",
-	"INVALID_PASSWORD" :"Votre mot de passe est valide" 
+	"INVALID_PASSWORD" :"Votre mot de passe est valide",
+	"SOMETHING_WENT_WRONG" :"Quelque chose s'est mal passé" ,
+    "PAYMENT_SUCCESSFUL" : "Paiement réussi"  
 	}

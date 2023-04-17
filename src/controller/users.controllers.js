@@ -3,7 +3,7 @@ const user = db.user;
 const jwt = require("jsonwebtoken");
 const { order, item } = require("../config/Config.js");
 const secretkey = "hello";
-const { QueryTypes, Op, DATE } = require("sequelize");
+const { QueryTypes, Op, DATE, where } = require("sequelize");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const Handlebars = require("handlebars");
@@ -11,6 +11,11 @@ const path = require("path");
 const otp = require("../helpers/otpGenretor.helper.js");
 const sendMail = require("../helpers/sendMail.helper.js");
 const moment = require("moment");
+require("dotenv").config(); 
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY)
+
+
+
 
 // 4.1 (Register User - Insert/Create)
 // Task no.39 (Create common function with otp generation, add field for OTP in user table, also add field for expireOtpTime)
@@ -35,7 +40,7 @@ const createUser = async (req, res) => {
         role: body.role,
         otp: otp,
         expireOtpTime: expireDate,
-        password: body.password
+        password: body.password,
       });
       let obj = { userName: data.userName, otp: data.otp };
       await sendMail("dishang.jnext@gmail.com", data.email, obj);
@@ -94,21 +99,36 @@ const loginUser = async (req, res) => {
       where: { email: body.email },
       raw: true,
     });
+
     if (!findUser) {
       return res
         .status(200)
         .send({ status: true, message: res.__("USER_NOT_REGISTERD!!") });
     }
-    if(findUser.password != body.password){
-          return res.status(200).send({status : true,message : res.__("INVALID_PASSWORD")})
-    }
-    if (findUser.status == "InActive") {
+    if (findUser.password != body.password) {
       return res
         .status(200)
-        .send({
-          status: true,
-          message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
-        });
+        .send({ status: true, message: res.__("INVALID_PASSWORD") });
+    }
+    if (findUser.status == "InActive") {
+      return res.status(200).send({
+        status: true,
+        message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
+      });
+    }
+
+    if (findUser.Customer_id == null) {
+      let createCustomer=  await stripe.customers.create({       
+        email : findUser.email,
+        name : findUser.userName
+      })
+     if(!createCustomer){
+         return res.status(200).send({status : done,message: res.__("ERROR")})
+     }else{
+       let update = await user.update({Customer_id :createCustomer.id },{where:{
+        id : findUser.id
+     }})
+     }
     }
     let token = jwt.sign(findUser, secretkey);
     return res.send({ token });
@@ -140,7 +160,7 @@ const allUser = async (req, res) => {
 
 const updateUserWithoutAuth = async (req, res) => {
   try {
-    let updated= await user.update(
+    let updated = await user.update(
       {
         userName: req.body.userName,
         email: req.body.email,
@@ -155,7 +175,9 @@ const updateUserWithoutAuth = async (req, res) => {
         .send({ status: true, message: res.__("NOT_UPDATED...") });
     }
     let data = await user.findOne({ where: { id: req.params.id } });
-    return res.status(200).send({ status: true,message : res.__("UPDATED"),records: data });
+    return res
+      .status(200)
+      .send({ status: true, message: res.__("UPDATED"), records: data });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ status: false, message: error.message });
@@ -169,12 +191,10 @@ const updateUser = async (req, res) => {
     let expireDate = moment().add(5, "minutes");
     let records = await user.findOne({ where: { id: req.user.id } });
     if (records.status == "InActive") {
-      return res
-        .status(200)
-        .send({
-          status: true,
-          message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
-        });
+      return res.status(200).send({
+        status: true,
+        message: res.__("PLEASE_VERIFY_YOUR_EMAIL_ADRESS!!!"),
+      });
     }
     if (!records) {
       return res.json({ message: res.__("RECORDS_NOT_FOUND...") });
@@ -309,7 +329,6 @@ const orderrole = async (req, res) => {
   }
 };
 
-
 //Task no. 30 && 32 && 34
 
 const onlyadmin = async (req, res) => {
@@ -367,8 +386,6 @@ const onlyadmin = async (req, res) => {
   }
 };
 
-
-
 const sendmail = async (req, res) => {
   try {
     let transporter = nodemailer.createTransport({
@@ -402,7 +419,9 @@ const sendmail = async (req, res) => {
       }
       console.log("Message sent:", info);
     });
-    return res.status(200).send({ status: true, message: res.__("MAIL_SEND_SUCCESSFULLY...") });
+    return res
+      .status(200)
+      .send({ status: true, message: res.__("MAIL_SEND_SUCCESSFULLY...") });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ status: false, message: error.message });
@@ -416,9 +435,11 @@ const verifyOtp = async (req, res) => {
     const verifyEmail = await user.findOne({
       where: { email: req.body.email },
     });
-     if(verifyEmail.otp != req.params.otp){
-       return res.status(200).send({status:true,message : res.__("INVALID_OTP")})
-     }
+    if (verifyEmail.otp != req.params.otp) {
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("INVALID_OTP") });
+    }
     let currentdate = moment().utc();
     if (verifyEmail.expireOtpTime < currentdate) {
       return res
@@ -443,12 +464,10 @@ const verifyOtp = async (req, res) => {
           .status(200)
           .send({ status: true, message: res.__("YOUR_OTP_IS_WRONG") });
       } else {
-        return res
-          .status(200)
-          .send({
-            status: true,
-            mesaage: res.__(`CONGRATULATION_NOW_YOUR_PROFILE_IS_VERIFIED... `),
-          });
+        return res.status(200).send({
+          status: true,
+          mesaage: res.__(`CONGRATULATION_NOW_YOUR_PROFILE_IS_VERIFIED... `),
+        });
       }
     }
   } catch (error) {
@@ -483,12 +502,10 @@ const changepassword = async (req, res) => {
           .send({ status: true, message: res.__("OLD_PASSWORD DOES'T MATCH") });
       }
     } else {
-      return res
-        .status(200)
-        .send({
-          status: true,
-          message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH"),
-        });
+      return res.status(200).send({
+        status: true,
+        message: res.__("CONFIRM_PASSWORD_DOES'T_MATCH"),
+      });
     }
   } catch (error) {
     console.log(error);
@@ -504,22 +521,25 @@ const forgetPasswordmail = async (req, res) => {
     const data = await user.update(
       { otp: otp, expireOtpTime: expireDate },
       { where: { email: req.body.email } }
-      );
-      const find = await user.findOne({ where: { email: req.body.email } });
-      console.log(find.userName);
-    if(!find){
-      return res.status(200).send({status : true,message : res.__("RECORDS_NOT_FOUND...")})
-    }else{
+    );
+    const find = await user.findOne({ where: { email: req.body.email } });
+    console.log(find.userName);
+    if (!find) {
+      return res
+        .status(200)
+        .send({ status: true, message: res.__("RECORDS_NOT_FOUND...") });
+    } else {
       let obj = { userName: find.userName, otp: otp };
       await sendMail("dishang.jnext@gmail.com", find.email, obj);
-      return res.status(200).send({ status: true, records: data , message : res.__("MAIL_SENT...") });
+      return res
+        .status(200)
+        .send({ status: true, records: data, message: res.__("MAIL_SENT...") });
     }
   } catch (error) {
     console.log(error);
     return res.status(400).send({ status: false, message: error.message });
   }
 };
-
 
 const forgetPassword = async (req, res) => {
   try {
@@ -538,12 +558,10 @@ const forgetPassword = async (req, res) => {
           );
           return res.status(200).send({ status: true, records: data });
         } else {
-          return res
-            .status(200)
-            .send({
-              status: true,
-              message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),
-            });
+          return res.status(200).send({
+            status: true,
+            message: res.__("PASSOWRD_AND_CONFIRM_PASSWORD_DOES'T_MATCH"),
+          });
         }
       } else {
         return res

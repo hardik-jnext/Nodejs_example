@@ -16,59 +16,13 @@ require("dotenv").config();
 var Publishable_Key = process.env.STRIPE_PUBLISHABLE_KEY
 var Secret_Key = process.env.STRIPE_SECRET_KEY
  const stripe = require("stripe")(Secret_Key);
+global.Secret_Key =Secret_Key
 
 
- 
- 
- 
-app.use(body.urlencoded({extended:false}))
+
+db.sequelize.sync({force :false })
+
 app.use(body.json())
- 
-// View Engine Setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
- 
-app.get('/getpayment', function(req, res){
-    res.render('home', {
-       key: Publishable_Key
-    })
-})
- 
-app.post('/payment', function(req, res){
- 
-    // Moreover you can take more details from user
-    // like Address, Name, etc from form
-    stripe.customers.create({
-        email: req.body.stripeEmail,
-        source: req.body.stripeToken,
-        name: 'hardik sheladiya',
-        address: {
-            line1: '75,yogidhra',
-            postal_code: '395006',
-            city: 'surat',
-            state: ' gujrat',
-            country: 'India',
-        }
-    })
-    .then((customer) => {
- 
-        return stripe.charges.create({
-            amount: 2500,     // Charging Rs 25
-            description: 'Web Development Product',
-            currency: 'INR',
-            customer: customer.id
-        });
-    })
-    .then((charge) => {
-        res.send("Success")  // If no error occurs
-    })
-    .catch((err) => {
-        res.send(err)       // If some error occurs
-    });
-})
-    
-
-
 
 
 
@@ -117,7 +71,6 @@ app.use(i18n.init)
 
 
 app.use(body.json())
-db.sequelize.sync({force : false })
 
 
 

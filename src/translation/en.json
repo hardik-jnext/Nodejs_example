@@ -27,6 +27,7 @@
 	"CAN'T_ACCESS_FOR_INSERT_RECORD": "can't access for insert record",
 	"CAN'T_ACCESS_FOR_UPDATE_RECORD": "can't access for update record",
 	"ITEM_NOT_DELETED!!!": "item not deleted!!!",
+	"ERROR" :"error",
 	"ALREADY_REGISTERED...": "Already Registered...",
 	"USER_NOT_FOUND": "user not found",
 	"ACCOUNT_ALREADY_DELETED!!!": "account already deleted!!!",
@@ -38,5 +39,7 @@
 	"INVALID_PASSWORD": "your password is invalid",
 	"UPDATED...": "UPDATED...",
 	"INVALID_OTP ": "invalid otp",
-	"MAIL_SENT..." : "mail sent"
+	"MAIL_SENT..." : "mail sent",
+	"SOMETHING_WENT_WRONG" :"something went wrong",
+	"PAYMENT_SUCCESSFUL" : "payment successful"
 }
